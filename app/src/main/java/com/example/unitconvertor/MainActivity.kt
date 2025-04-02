@@ -42,11 +42,33 @@ fun UnitConverterApp() {
     val weightUnits = listOf("Pound", "Ounce", "Ton", "Kilogram", "Gram") // Units for weight
     val tempUnits = listOf("Celsius", "Fahrenheit", "Kelvin") // Units for temperature
 
-    val units = when (selectedCategory) { // Determines available units based on selected category
+
+    // When the category is changed, reset source and destination units
+    val units = when (selectedCategory) {
         "Length" -> lengthUnits
         "Weight" -> weightUnits
         "Temperature" -> tempUnits
         else -> lengthUnits
+    }
+
+    // Set the default source and destination units based on category
+    val defaultSourceUnit = when (selectedCategory) {
+        "Length" -> "Inch"
+        "Weight" -> "Pound"
+        "Temperature" -> "Celsius"
+        else -> "Inch"
+    }
+    val defaultDestinationUnit = when (selectedCategory) {
+        "Length" -> "Centimeter"
+        "Weight" -> "Kilogram"
+        "Temperature" -> "Fahrenheit"
+        else -> "Centimeter"
+    }
+
+    // Reset source and destination units when category changes
+    LaunchedEffect(selectedCategory) {
+        sourceUnit = defaultSourceUnit
+        destinationUnit = defaultDestinationUnit
     }
 
     Column(modifier = Modifier.padding(16.dp)) { // UI Layout with padding
@@ -72,8 +94,15 @@ fun UnitConverterApp() {
             onClick = {
                 try {
                     val value = inputValue.toDouble()
-                    convertedValue = performConversion(value, selectedCategory, sourceUnit, destinationUnit)
-                    errorMessage = ""
+                    // Check if the source and destination units are the same
+                    if (sourceUnit == destinationUnit) {
+                        convertedValue = "$value $destinationUnit"
+                        errorMessage = "Value is same because of the same unit conversion "
+                    }else{
+                        convertedValue = performConversion(value, selectedCategory, sourceUnit, destinationUnit)
+                        errorMessage = ""
+                    }
+
                 } catch (e: Exception) {
                     errorMessage = "Invalid input, please enter a valid number"
                     convertedValue = ""
